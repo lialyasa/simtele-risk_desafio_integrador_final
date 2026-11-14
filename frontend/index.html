@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMTELE-RISK | Prototipo de Simulación Numérica</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="[suspicious link removed]" rel="stylesheet">
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="[suspicious link removed]">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hero-banner { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 2.5rem 0; margin-bottom: 2rem; }
+        .card-module { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: transform 0.2s; margin-bottom: 1.5rem; }
+        .card-module:hover { transform: translateY(-3px); }
+        .card-header-custom { background-color: #ffffff; border-bottom: 2px solid #eef2f5; border-radius: 12px 12px 0 0 !important; font-weight: 700; color: #1e3c72; }
+        .badge-scenario { font-size: 0.85rem; padding: 0.4em 0.8em; }
+        .sim-results { background-color: #f8f9fa; border-left: 4px solid #0d6efd; padding: 1rem; border-radius: 4px; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Encabezado Principal -->
+    <header class="hero-banner text-center shadow-sm">
+        <div class="container">
+            <h1 class="fw-bold"><i class="fa-solid fa-cable-car me-2"></i>SIMTELE-RISK</h1>
+            <p class="lead mb-0">Sistema Integrado de Simulación y Evaluación Numérica de Transporte por Cable</p>
+            <span class="badge bg-warning text-dark mt-2">Prototipo Web — Estudiante A</span>
+        </div>
+    </header>
+
+    <main class="container mb-5">
+        
+        <!-- Alerta de estado -->
+        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+            <i class="fa-solid fa-circle-info fa-lg me-3"></i>
+            <div>
+                <strong>Modo Prototipo Inicial:</strong> Selecciona un escenario (Normal, Estrés, Mal Condicionado) e ingresa parámetros. Los resultados mostrados en esta etapa corresponden a valores de prueba simulados.
+            </div>
+        </div>
+
+        <div class="row">
+
+            <!-- MÓDULO 1: Detención de Emergencia -->
+            <div class="col-lg-6">
+                <div class="card card-module">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center p-3">
+                        <span><i class="fa-solid fa-circle-stop text-danger me-2"></i>Módulo 1: Detención de Emergencia</span>
+                        <span class="badge bg-secondary badge-scenario">M1</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">Evaluación de tiempo y distancia de frenado ante variaciones de velocidad y desaceleración.</p>
+                        
+                        <form id="form-mod1" onsubmit="runSimulation(event, 'results-mod1')">
+                            <!-- Selector de Escenario -->
+                            <div class="mb-3">
+                                <label class="form-label font-weight-bold"><strong>Escenario de Prueba:</strong></label>
+                                <select class="form-select border-primary" onchange="loadPreset(1, this.value)">
+                                    <option value="NORMAL" selected>NORMAL (Nominal sintético)</option>
+                                    <option value="ESTRES">ESTRÉS (Alta velocidad / Exigencia)</option>
+                                    <option value="MAL">MAL CONDICIONADO (Sensibilidad numérica)</option>
+                                </select>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small">Velocidad v0 (m/s)</label>
+                                    <input type="number" step="0.1" class="form-control form-control-sm" id="m1-v0" value="12.0" min="1" max="50" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Tiempo reacción (s)</label>
+                                    <input type="number" step="0.05" class="form-control form-control-sm" id="m1-tr" value="0.50" min="0" max="5" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Desaceleración a (m/s²)</label>
+                                    <input type="number" step="0.1" class="form-control form-control-sm" id="m1-a" value="2.5" min="0.1" max="15" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fa-solid fa-play me-1"></i> Simular Detención</button>
+                        </form>
+
+                        <!-- Área de Resultados Simulados -->
+                        <div id="results-mod1" class="sim-results mt-3">
+                            <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-chart-line me-1"></i> Resultado de la Simulación:</h6>
+                            <ul class="list-unstyled mb-1 small">
+                                <li><strong>Distancia de Frenado:</strong> <span class="text-primary fw-bold" id="res-m1-dist">34.80 m</span></li>
+                                <li><strong>Tiempo Total de Parada:</strong> <span class="text-primary fw-bold" id="res-m1-time">5.30 s</span></li>
+                                <li><strong>Error Relativo Estimado:</strong> <span class="text-success" id="res-m1-err">1.24 e-5</span></li>
+                            </ul>
+                            <small class="text-muted">Métodos evaluados: RK4 / Integración Trapecio (Simulado)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MÓDULO 2: Deterioro Mecánico -->
+            <div class="col-lg-6">
+                <div class="card card-module">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center p-3">
+                        <span><i class="fa-solid fa-wrench text-warning me-2"></i>Módulo 2: Deterioro Mecánico</span>
+                        <span class="badge bg-secondary badge-scenario">M2</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">Calibración de coeficientes y estimación de tiempo hasta el umbral de inspección.</p>
+                        
+                        <form id="form-mod2" onsubmit="runSimulation(event, 'results-mod2')">
+                            <!-- Selector de Escenario -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Escenario de Prueba:</strong></label>
+                                <select class="form-select border-warning" onchange="loadPreset(2, this.value)">
+                                    <option value="NORMAL" selected>NORMAL (Nominal SPD)</option>
+                                    <option value="ESTRES">ESTRÉS (Mayor tasa de desgaste)</option>
+                                    <option value="MAL">MAL CONDICIONADO (Matriz con κ(A) elevado)</option>
+                                </select>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small">Coef. Alfa (α)</label>
+                                    <input type="number" step="0.001" class="form-control form-control-sm" id="m2-alpha" value="0.015" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Coef. Beta (β)</label>
+                                    <input type="number" step="0.0001" class="form-control form-control-sm" id="m2-beta" value="0.0005" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Umbral D (%)</label>
+                                    <input type="number" step="1" class="form-control form-control-sm" id="m2-umbral" value="80" min="10" max="100" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning text-dark btn-sm w-100 fw-bold"><i class="fa-solid fa-play me-1"></i> Simular Deterioro</button>
+                        </form>
+
+                        <!-- Área de Resultados Simulados -->
+                        <div id="results-mod2" class="sim-results mt-3 border-start border-warning">
+                            <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-chart-line me-1"></i> Resultado de la Simulación:</h6>
+                            <ul class="list-unstyled mb-1 small">
+                                <li><strong>Tiempo estimado a Umbral:</strong> <span class="text-dark fw-bold" id="res-m2-time">115.4 días</span></li>
+                                <li><strong>Condición de Matriz κ(A):</strong> <span class="badge bg-success" id="res-m2-cond">12.4 (Bien condicionado)</span></li>
+                                <li><strong>Convergencia Gauss-Seidel:</strong> <span class="text-success fw-bold">8 Iteraciones</span></li>
+                            </ul>
+                            <small class="text-muted">Métodos evaluados: Jacobi, Gauss-Seidel, LU, Gradiente Conj. (Simulado)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MÓDULO 3: Oscilaciones por Viento -->
+            <div class="col-lg-6">
+                <div class="card card-module">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center p-3">
+                        <span><i class="fa-solid fa-wind text-info me-2"></i>Módulo 3: Oscilaciones por Viento</span>
+                        <span class="badge bg-secondary badge-scenario">M3</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">Simulación de la respuesta dinámica y oscilación de cabinas ante ráfagas de viento.</p>
+                        
+                        <form id="form-mod3" onsubmit="runSimulation(event, 'results-mod3')">
+                            <!-- Selector de Escenario -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Escenario de Prueba:</strong></label>
+                                <select class="form-select border-info" onchange="loadPreset(3, this.value)">
+                                    <option value="NORMAL" selected>NORMAL (Viento constante moderado)</option>
+                                    <option value="ESTRES">ESTRÉS (Ráfagas extremas)</option>
+                                    <option value="MAL">MAL CONDICIONADO (Subamortiguado crítico)</option>
+                                </select>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small">Masa cabina m (kg)</label>
+                                    <input type="number" class="form-control form-control-sm" id="m3-m" value="1200" min="100" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Amortiguamiento c</label>
+                                    <input type="number" step="0.1" class="form-control form-control-sm" id="m3-c" value="45.0" min="0" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Fuerza Viento F (N)</label>
+                                    <input type="number" class="form-control form-control-sm" id="m3-f" value="350" min="0" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-info text-white btn-sm w-100"><i class="fa-solid fa-play me-1"></i> Simular Oscilaciones</button>
+                        </form>
+
+                        <!-- Área de Resultados Simulados -->
+                        <div id="results-mod3" class="sim-results mt-3 border-start border-info">
+                            <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-chart-line me-1"></i> Resultado de la Simulación:</h6>
+                            <ul class="list-unstyled mb-1 small">
+                                <li><strong>Amplitud Máxima:</strong> <span class="text-info fw-bold" id="res-m3-amp">0.42 m</span></li>
+                                <li><strong>Frecuencia Dominante:</strong> <span class="text-dark" id="res-m3-freq">1.15 Hz</span></li>
+                                <li><strong>Diferencia RK2 vs RK4:</strong> <span class="text-secondary" id="res-m3-diff">0.0031 m</span></li>
+                            </ul>
+                            <small class="text-muted">Métodos evaluados: RK2, RK4, Integración Romberg (Simulado)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MÓDULO 4: Reconstrucción de Sensores -->
+            <div class="col-lg-6">
+                <div class="card card-module">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center p-3">
+                        <span><i class="fa-solid fa-wave-square text-success me-2"></i>Módulo 4: Reconstrucción de Sensores</span>
+                        <span class="badge bg-secondary badge-scenario">M4</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">Interpolación y reconstrucción de señales continuas a partir de lecturas con fallas o ruido.</p>
+                        
+                        <form id="form-mod4" onsubmit="runSimulation(event, 'results-mod4')">
+                            <!-- Selector de Escenario -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Escenario de Prueba:</strong></label>
+                                <select class="form-select border-success" onchange="loadPreset(4, this.value)">
+                                    <option value="NORMAL" selected>NORMAL (Nodos equidistantes sin ruido)</option>
+                                    <option value="ESTRES">ESTRÉS (Vacíos extensos de datos)</option>
+                                    <option value="MAL">MAL CONDICIONADO (Nodos muy cercanos / Fenómeno Runge)</option>
+                                </select>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small">N° Nodos (N)</label>
+                                    <input type="number" class="form-control form-control-sm" id="m4-nodos" value="7" min="3" max="30" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Ruido s (σ)</label>
+                                    <input type="number" step="0.01" class="form-control form-control-sm" id="m4-ruido" value="0.02" min="0" max="1" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Método Interpolación</label>
+                                    <select class="form-select form-select-sm" id="m4-metodo">
+                                        <option value="spline">Splines Cúbicos</option>
+                                        <option value="lagrange">Lagrange</option>
+                                        <option value="newton">Newton</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success btn-sm w-100"><i class="fa-solid fa-play me-1"></i> Reconstruir Señal</button>
+                        </form>
+
+                        <!-- Área de Resultados Simulados -->
+                        <div id="results-mod4" class="sim-results mt-3 border-start border-success">
+                            <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-chart-line me-1"></i> Resultado de la Simulación:</h6>
+                            <ul class="list-unstyled mb-1 small">
+                                <li><strong>Error Medio Cuadrático (RMSE):</strong> <span class="text-success fw-bold" id="res-m4-rmse">0.0084</span></li>
+                                <li><strong>Puntos Ocultos Evaluados:</strong> <span class="text-dark">4 puntos</span></li>
+                                <li><strong>Estabilidad de Reconstrucción:</strong> <span class="badge bg-success" id="res-m4-stab">Alta</span></li>
+                            </ul>
+                            <small class="text-muted">Métodos evaluados: Lagrange, Newton, Splines Cúbicos (Simulado)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-muted border-top bg-white">
+        <small>© 2026 SIMTELE-RISK — Proyecto Métodos Numéricos | Desarrollado para <i>Mi Teleférico</i></small>
+    </footer>
+
+    <!-- Bootstrap JS y Script Interactivo -->
+    <script src="[suspicious link removed]"></script>
+    <script>
+        function runSimulation(event, resultId) {
+            event.preventDefault();
+            const resDiv = document.getElementById(resultId);
+            resDiv.style.display = 'block';
+        }
+
+        function loadPreset(mod, scenario) {
+            if (mod === 1) {
+                if (scenario === 'NORMAL') {
+                    document.getElementById('m1-v0').value = 12.0;
+                    document.getElementById('m1-tr').value = 0.50;
+                    document.getElementById('m1-a').value = 2.5;
+                    document.getElementById('res-m1-dist').innerText = "34.80 m";
+                    document.getElementById('res-m1-time').innerText = "5.30 s";
+                } else if (scenario === 'ESTRES') {
+                    document.getElementById('m1-v0').value = 25.0;
+                    document.getElementById('m1-tr').value = 1.20;
+                    document.getElementById('m1-a').value = 1.5;
+                    document.getElementById('res-m1-dist').innerText = "238.33 m";
+                    document.getElementById('res-m1-time').innerText = "17.86 s";
+                } else if (scenario === 'MAL') {
+                    document.getElementById('m1-v0').value = 30.0;
+                    document.getElementById('m1-tr').value = 2.00;
+                    document.getElementById('m1-a').value = 0.2;
+                    document.getElementById('res-m1-dist').innerText = "2310.00 m";
+                    document.getElementById('res-m1-time').innerText = "152.00 s";
+                }
+            } else if (mod === 2) {
+                if (scenario === 'MAL') {
+                    document.getElementById('res-m2-cond').className = "badge bg-danger";
+                    document.getElementById('res-m2-cond').innerText = "κ(A) = 4.8 e+5 (Mal condicionado)";
+                } else {
+                    document.getElementById('res-m2-cond').className = "badge bg-success";
+                    document.getElementById('res-m2-cond').innerText = "κ(A) = 12.4 (Bien condicionado)";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

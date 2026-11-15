@@ -104,50 +104,5 @@ simtele-risk/
 
 
 
-## Modelo Entidad Relación (DER)
 
-```mermaid
-erDiagram
-    caso_estudio ||--o{ escenario : "define"
-    escenario ||--o{ simulacion : "se_ejecuta_en"
-    simulacion ||--o{ ejecucion_metodo : "evalua"
-    ejecucion_metodo ||--o{ iteracion_resultado : "genera"
-    ejecucion_metodo ||--|| resultado_resumen : "sintetiza_en"
-
-    caso_estudio {
-        int id PK
-        string nombre
-        string modelo_version
-    }
-    escenario {
-        int id PK
-        int caso_id FK
-        string tipo
-        text parametros_json
-    }
-    simulacion {
-        int id PK
-        int escenario_id FK
-        datetime fecha
-        string usuario_equipo
-    }
-    ejecucion_metodo {
-        int id PK
-        int simulacion_id FK
-        string metodo
-        float tolerancia
-        float tiempo_ms
-    }
-    iteracion_resultado {
-        int id PK
-        int ejecucion_id FK
-        int numero
-        float error_rel
-    }
-    resultado_resumen {
-        int id PK
-        int ejecucion_id FK
-        text valor_json
-        text interpretacion
-    }
-```
+![Diagrama Entidad Relación](./database/der.png)

@@ -1,4 +1,4 @@
-\# 🚠 SIMTELE-RISK: Sistema Integrado de Simulación y Métodos Numéricos
+\#  SIMTELE-RISK: Sistema Integrado de Simulación y Métodos Numéricos
 
 
 
@@ -10,7 +10,7 @@
 
 
 
-\## 📌 Módulos y Casos de Estudio
+\##  Módulos y Casos de Estudio
 
 
 
@@ -30,7 +30,7 @@ La plataforma cuenta con 4 módulos obligatorios:
 
 
 
-\## ⚙️ Escenarios de Evaluación
+\##  Escenarios de Evaluación
 
 
 
@@ -48,7 +48,7 @@ Cada módulo permite ejecutar simulaciones en tres condiciones experimentales:
 
 
 
-\## 🛠️ Arquitectura y Tecnologías
+\##  Arquitectura y Tecnologías
 
 
 
@@ -64,7 +64,7 @@ Cada módulo permite ejecutar simulaciones en tres condiciones experimentales:
 
 
 
-\## 📁 Estructura del Repositorio
+\##  Estructura del Repositorio
 
 
 
@@ -102,3 +102,8 @@ simtele-risk/
 
 └── README.md           # Presentación principal del repositorio
 
+
+
+\##  Modelo Entidad Relacion DER
+
+![Diagrama Entidad Relación](database/der.png)

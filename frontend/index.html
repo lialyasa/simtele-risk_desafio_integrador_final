@@ -6,7 +6,7 @@
     <title>SIMTELE-RISK | Plataforma de Simulación</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Chart.js CDN (Para los gráficos dinámicos) -->
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-light">
@@ -37,8 +37,7 @@
                         1. Detención de Emergencia (Raíces)
                     </div>
                     <div class="card-body">
-                        <p class="small text-muted">Búsqueda de raíce: bisección, Newton-Raphson y secante para $v(t) = 0$.</p>
-                        <!-- Lienzo del Gráfico 1 -->
+                        <p class="small text-muted">Búsqueda de raíces: bisección, Newton-Raphson y secante para v(t) = 0.</p>
                         <canvas id="graficoModulo1" height="200"></canvas>
                     </div>
                 </div>
@@ -51,8 +50,7 @@
                         2. Deterioro Mecánico y Mantenimiento
                     </div>
                     <div class="card-body">
-                        <p class="small text-muted">Calibración de coeficientes y umbral de inspección $D(t) - D_{umbral} = 0$.</p>
-                        <!-- Lienzo del Gráfico 2 -->
+                        <p class="small text-muted">Calibración de coeficientes y umbral de inspección D(t) - D_umbral = 0.</p>
                         <canvas id="graficoModulo2" height="200"></canvas>
                     </div>
                 </div>
@@ -66,7 +64,6 @@
                     </div>
                     <div class="card-body">
                         <p class="small text-muted">Solución de EDOs (RK2, RK4) e integración numérica (Trapecio, Simpson, Romberg).</p>
-                        <!-- Lienzo del Gráfico 3 -->
                         <canvas id="graficoModulo3" height="200"></canvas>
                     </div>
                 </div>
@@ -80,7 +77,6 @@
                     </div>
                     <div class="card-body">
                         <p class="small text-muted">Interpolación de telemetría (Lagrange, Newton y Splines Cúbicos).</p>
-                        <!-- Lienzo del Gráfico 4 -->
                         <canvas id="graficoModulo4" height="200"></canvas>
                     </div>
                 </div>
@@ -89,38 +85,72 @@
         </div>
     </div>
 
-    <!-- Script de Inicialización de Gráficos de Prueba -->
+    <!-- Scripts de Conexión a la API -->
     <script>
-        // Función auxiliar para crear gráficos básicos
-        function crearGraficoPrueba(idCanvas, titulo, etiquetaX, datosPrueba, color) {
-            const ctx = document.getElementById(idCanvas).getContext('2d');
-            return new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Iteración 1', 'Iteración 2', 'Iteración 3', 'Iteración 4', 'Iteración 5'],
-                    datasets: [{
-                        label: titulo,
-                        data: datosPrueba,
-                        borderColor: color,
-                        backgroundColor: color + '22',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: true, position: 'top' }
-                    }
-                }
-            });
-        }
+        const API_URL = 'http://localhost:5000/api';
 
-        // Renderizar gráficos iniciales de demostración
-        crearGraficoPrueba('graficoModulo1', 'Error Relativo (Detención)', 'k', [0.5, 0.2, 0.05, 0.008, 0.0001], '#0d6efd');
-        crearGraficoPrueba('graficoModulo2', 'Desgaste $D(t)$', 'Días', [0.1, 0.3, 0.55, 0.78, 0.95], '#198754');
-        crearGraficoPrueba('graficoModulo3', 'Amplitud de Oscilación', 'Tiempo (s)', [1.2, -0.9, 0.6, -0.3, 0.1], '#ffc107');
-        crearGraficoPrueba('graficoModulo4', 'Reconstrucción vs Sensores', 'Nodos', [0.0, 0.84, 0.91, 0.14, -0.75], '#dc3545');
+        // Módulo 1: Detención
+        fetch(`${API_URL}/modulo1/NORMAL`)
+            .then(r => r.json())
+            .then(data => {
+                const ctx = document.getElementById('graficoModulo1').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.graficos.curva_velocidad.t,
+                        datasets: [{
+                            label: 'Velocidad v(t) [m/s]',
+                            data: data.graficos.curva_velocidad.v,
+                            borderColor: '#0d6efd',
+                            fill: false,
+                            tension: 0.1
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }).catch(err => console.log("Servidor Flask no conectado aún"));
+
+        // Módulo 2: Deterioro
+        fetch(`${API_URL}/modulo2/umbral`)
+            .then(r => r.json())
+            .then(data => {
+                const ctx = document.getElementById('graficoModulo2').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.graficos.curva_deterioro.t,
+                        datasets: [{
+                            label: 'Deterioro D(t)',
+                            data: data.graficos.curva_deterioro.D,
+                            borderColor: '#198754',
+                            fill: false,
+                            tension: 0.1
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }).catch(err => console.log("Servidor Flask no conectado aún"));
+
+        // Módulo 3: Oscilaciones
+        fetch(`${API_URL}/modulo3/NORMAL`)
+            .then(r => r.json())
+            .then(data => {
+                const ctx = document.getElementById('graficoModulo3').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.rk4.ts,
+                        datasets: [{
+                            label: 'Trayectoria RK4 x(t)',
+                            data: data.rk4.xs,
+                            borderColor: '#ffc107',
+                            fill: false,
+                            tension: 0.1
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }).catch(err => console.log("Servidor Flask no conectado aún"));
     </script>
 </body>
 </html>

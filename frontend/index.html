@@ -3,131 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMTELE-RISK | Plataforma de Simulación</title>
+    <title>SIMTELE-RISK | Plataforma Integrada de Simulación</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <!-- Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">🚡 SIMTELE-RISK</a>
-            <span class="navbar-text text-white-50">Sistema Integrado de Simulación Numérica</span>
+            <span class="navbar-text text-white-50">Plataforma de Simulación Numérica y Análisis de Riesgo</span>
         </div>
     </nav>
 
     <div class="container pb-5">
+        
+        <!-- Encabezado -->
         <div class="row text-center mb-4">
             <div class="col">
-                <h2 class="fw-bold">Panel de Control de Casos de Estudio</h2>
-                <p class="text-muted">Semana 2 — Persistencia y Visualización Interactiva (4 Módulos)</p>
+                <h2 class="fw-bold">Panel de Control Multiescenario</h2>
+                <p class="text-muted">Semana 2 — Integración de los 4 Módulos y Persistencia en SQLite</p>
             </div>
         </div>
 
-        <div class="row g-4">
-            <!-- Módulo 1 -->
+        <!-- Grilla de los 4 Módulos -->
+        <div class="row g-4 mb-5">
+
+            <!-- Módulo 1: Detención de Emergencia -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-primary text-white fw-bold">1. Detención de Emergencia (Raíces)</div>
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">1. Detención de Emergencia (Raíces)</span>
+                        <select id="selectMod1" class="form-select form-select-sm w-auto" onchange="cargarModulo1()">
+                            <option value="NORMAL">Normal</option>
+                            <option value="ESTRES">Estrés</option>
+                            <option value="MAL_CONDICIONADO">Mal Condicionado</option>
+                        </select>
+                    </div>
                     <div class="card-body">
-                        <p class="small text-muted">Búsqueda de raíces v(t) = 0.</p>
-                        <canvas id="graficoModulo1" height="200"></canvas>
+                        <p class="small text-muted">Solución de v(t) = 0 mediante Bisección, Newton-Raphson y Secante.</p>
+                        <canvas id="graficoModulo1" height="180"></canvas>
+                        <div id="infoMod1" class="mt-2 small text-muted"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Módulo 2 -->
+            <!-- Módulo 2: Deterioro Mecánico -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-success text-white fw-bold">2. Deterioro Mecánico</div>
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">2. Deterioro Mecánico</span>
+                        <button class="btn btn-sm btn-light text-success fw-bold" onclick="cargarModulo2()">Calcular Umbral</button>
+                    </div>
                     <div class="card-body">
-                        <p class="small text-muted">Umbral de inspección D(t) - D_umbral = 0.</p>
-                        <canvas id="graficoModulo2" height="200"></canvas>
+                        <p class="small text-muted">Cruce de umbral de inspección D(t) - D_umbral = 0.</p>
+                        <canvas id="graficoModulo2" height="180"></canvas>
+                        <div id="infoMod2" class="mt-2 small text-muted"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Módulo 3 -->
+            <!-- Módulo 3: Oscilaciones por Viento -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-warning text-dark fw-bold">3. Oscilaciones por Viento</div>
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">3. Oscilaciones por Viento</span>
+                        <select id="selectMod3" class="form-select form-select-sm w-auto" onchange="cargarModulo3()">
+                            <option value="NORMAL">Normal</option>
+                            <option value="ESTRES">Estrés</option>
+                            <option value="MAL_CONDICIONADO">Mal Condicionado</option>
+                        </select>
+                    </div>
                     <div class="card-body">
-                        <p class="small text-muted">Solución de EDOs (RK4) e Integración.</p>
-                        <canvas id="graficoModulo3" height="200"></canvas>
+                        <p class="small text-muted">Resolución de EDOs (RK4) e Integración Numérica.</p>
+                        <canvas id="graficoModulo3" height="180"></canvas>
+                        <div id="infoMod3" class="mt-2 small text-muted"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Módulo 4 -->
+            <!-- Módulo 4: Reconstrucción de Sensores -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-danger text-white fw-bold">4. Reconstrucción de Sensores</div>
+                    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">4. Reconstrucción de Sensores</span>
+                        <select id="selectMod4" class="form-select form-select-sm w-auto" onchange="cargarModulo4()">
+                            <option value="NORMAL">Normal</option>
+                            <option value="ESTRES">Estrés</option>
+                            <option value="MAL_CONDICIONADO">Mal Condicionado</option>
+                        </select>
+                    </div>
                     <div class="card-body">
-                        <p class="small text-muted">Interpolación de telemetría (Lagrange).</p>
-                        <canvas id="graficoModulo4" height="200"></canvas>
+                        <p class="small text-muted">Reconstrucción de telemetría faltante con Interpolación de Lagrange.</p>
+                        <canvas id="graficoModulo4" height="180"></canvas>
+                        <div id="infoMod4" class="mt-2 small text-muted"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Tabla de Historial en SQLite -->
+        <div class="row">
+            <div class="col">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">🗄️ Historial de Simulaciones Registradas en SQLite</h5>
+                        <button class="btn btn-sm btn-outline-light" onclick="cargarHistorial()">🔄 Actualizar Historial</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Módulo</th>
+                                        <th>Escenario</th>
+                                        <th>Fecha de Ejecución</th>
+                                        <th>Usuario / Equipo</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaHistorial">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-3">Cargando registros de la base de datos...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 
+    <!-- Lógica en JavaScript -->
     <script>
         const API_URL = 'http://localhost:5000/api';
+        let chart1, chart2, chart3, chart4;
 
-        // Módulo 1
-        fetch(`${API_URL}/modulo1/NORMAL`)
-            .then(r => r.json())
-            .then(data => {
-                new Chart(document.getElementById('graficoModulo1').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: data.graficos.curva_velocidad.t,
-                        datasets: [{ label: 'Velocidad v(t)', data: data.graficos.curva_velocidad.v, borderColor: '#0d6efd', fill: false }]
-                    }
-                });
-            });
+        // Cargar Módulo 1
+        function cargarModulo1() {
+            const esc = document.getElementById('selectMod1').value;
+            fetch(`${API_URL}/modulo1/${esc}`)
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('graficoModulo1').getContext('2d');
+                    if (chart1) chart1.destroy();
+                    chart1 = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.graficos.curva_velocidad.t,
+                            datasets: [{
+                                label: `v(t) Escenario ${esc}`,
+                                data: data.graficos.curva_velocidad.v,
+                                borderColor: '#0d6efd',
+                                fill: false,
+                                tension: 0.1
+                            }]
+                        },
+                        options: { responsive: true }
+                    });
+                    document.getElementById('infoMod1').innerText = `Simulación ID #${data.simulacion_id_guardada} guardada en SQLite.`;
+                    cargarHistorial();
+                }).catch(err => console.log("Servidor backend no disponible aún"));
+        }
 
-        // Módulo 2
-        fetch(`${API_URL}/modulo2/umbral`)
-            .then(r => r.json())
-            .then(data => {
-                new Chart(document.getElementById('graficoModulo2').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: data.graficos.curva_deterioro.t,
-                        datasets: [{ label: 'Deterioro D(t)', data: data.graficos.curva_deterioro.D, borderColor: '#198754', fill: false }]
-                    }
-                });
-            });
+        // Cargar Módulo 2
+        function cargarModulo2() {
+            fetch(`${API_URL}/modulo2/umbral`)
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('graficoModulo2').getContext('2d');
+                    if (chart2) chart2.destroy();
+                    chart2 = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.graficos.curva_deterioro.t,
+                            datasets: [{
+                                label: 'Deterioro D(t)',
+                                data: data.graficos.curva_deterioro.D,
+                                borderColor: '#198754',
+                                fill: false,
+                                tension: 0.1
+                            }]
+                        },
+                        options: { responsive: true }
+                    });
+                    document.getElementById('infoMod2').innerText = `D_umbral alcanzado. Simulación ID #${data.simulacion_id_guardada} guardada en SQLite.`;
+                    cargarHistorial();
+                }).catch(err => console.log("Servidor backend no disponible aún"));
+        }
 
-        // Módulo 3
-        fetch(`${API_URL}/modulo3/NORMAL`)
-            .then(r => r.json())
-            .then(data => {
-                new Chart(document.getElementById('graficoModulo3').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: data.rk4.ts,
-                        datasets: [{ label: 'Trayectoria RK4 x(t)', data: data.rk4.xs, borderColor: '#ffc107', fill: false }]
-                    }
-                });
-            });
+        // Cargar Módulo 3
+        function cargarModulo3() {
+            const esc = document.getElementById('selectMod3').value;
+            fetch(`${API_URL}/modulo3/${esc}`)
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('graficoModulo3').getContext('2d');
+                    if (chart3) chart3.destroy();
+                    chart3 = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.rk4.ts,
+                            datasets: [{
+                                label: `Posición x(t) RK4 (${esc})`,
+                                data: data.rk4.xs,
+                                borderColor: '#ffc107',
+                                fill: false,
+                                tension: 0.1
+                            }]
+                        },
+                        options: { responsive: true }
+                    });
+                    document.getElementById('infoMod3').innerText = `Energía: ${data.energia_acumulada} J. Guardado en SQLite (ID #${data.simulacion_id_guardada}).`;
+                    cargarHistorial();
+                }).catch(err => console.log("Servidor backend no disponible aún"));
+        }
 
-        // Módulo 4
-        fetch(`${API_URL}/modulo4/NORMAL`)
-            .then(r => r.json())
-            .then(data => {
-                new Chart(document.getElementById('graficoModulo4').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: data.graficos.curva_sensores.t,
-                        datasets: [
-                            { label: 'Señal Original', data: data.graficos.curva_sensores.y_original, borderColor: '#6c757d', borderDash: [17], fill: false },
-                            { label: 'Reconstrucción (Lagrange)', data: data.graficos.curva_sensores.y_reconstruida, borderColor: '#dc3545', fill: false }
-                        ]
+        // Cargar Módulo 4
+        function cargarModulo4() {
+            const esc = document.getElementById('selectMod4').value;
+            fetch(`${API_URL}/modulo4/${esc}`)
+                .then(r => r.json())
+                .then(data => {
+                    const ctx = document.getElementById('graficoModulo4').getContext('2d');
+                    if (chart4) chart4.destroy();
+                    chart4 = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.graficos.curva_sensores.t,
+                            datasets: [
+                                { label: 'Original', data: data.graficos.curva_sensores.y_original, borderColor: '#6c757d', borderDash: [5, 5], fill: false },
+                                { label: 'Lagrange', data: data.graficos.curva_sensores.y_reconstruida, borderColor: '#dc3545', fill: false }
+                            ]
+                        },
+                        options: { responsive: true }
+                    });
+                    document.getElementById('infoMod4').innerText = `Reconstrucción finalizada. Guardado en SQLite (ID #${data.simulacion_id_guardada}).`;
+                    cargarHistorial();
+                }).catch(err => console.log("Servidor backend no disponible aún"));
+        }
+
+        // Cargar Historial desde SQLite
+        function cargarHistorial() {
+            fetch(`${API_URL}/historial`)
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('tablaHistorial');
+                    if (!data.historial || data.historial.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No hay simulaciones registradas aún.</td></tr>';
+                        return;
                     }
-                });
-            });
+                    tbody.innerHTML = data.historial.map(item => `
+                        <tr>
+                            <td><strong>#${item.id}</strong></td>
+                            <td>${item.modulo}</td>
+                            <td><span class="badge ${item.escenario === 'NORMAL' ? 'bg-primary' : item.escenario === 'ESTRES' ? 'bg-warning text-dark' : 'bg-danger'}">${item.escenario}</span></td>
+                            <td>${item.fecha}</td>
+                            <td>${item.usuario_equipo}</td>
+                            <td><span class="badge bg-success">${item.estado}</span></td>
+                        </tr>
+                    `).join('');
+                }).catch(err => console.log("No se pudo cargar el historial"));
+        }
+
+        // Carga inicial al abrir la página
+        window.onload = () => {
+            cargarModulo1();
+            cargarModulo2();
+            cargarModulo3();
+            cargarModulo4();
+            cargarHistorial();
+        };
     </script>
 </body>
 </html>

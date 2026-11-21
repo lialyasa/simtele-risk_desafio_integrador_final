@@ -1,15 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from database import guardar_simulacion, obtener_historial_simulaciones
-from modulo3 import escenario_normal as mod3_normal, escenario_estres as mod3_estres, escenario_mal_condicionado as mod3_mal
-from raices import simular_modulo1_raices, simular_modulo2_umbral
+from backend.database import guardar_simulacion, obtener_historial_simulaciones
+from backend.modulo3 import escenario_normal as mod3_normal, escenario_estres as mod3_estres, escenario_mal_condicionado as mod3_mal
+from backend.raices import simular_modulo1_raices, simular_modulo2_umbral
+from backend.interpolacion import simular_modulo4_sensores
 
 app = Flask(__name__)
 CORS(app)
 
-# -------------------------------------------------------------
-# MÓDULO 1: Detención de Emergencia (Raíces)
-# -------------------------------------------------------------
+# MÓDULO 1: Detención de Emergencia
 @app.route('/api/modulo1/<escenario>', methods=['GET'])
 def api_modulo1(escenario):
     try:
@@ -31,9 +30,7 @@ def api_modulo1(escenario):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-# -------------------------------------------------------------
-# MÓDULO 2: Deterioro y Umbral de Mantenimiento
-# -------------------------------------------------------------
+# MÓDULO 2: Deterioro Mecánico
 @app.route('/api/modulo2/umbral', methods=['GET'])
 def api_modulo2():
     res = simular_modulo2_umbral()
@@ -52,9 +49,7 @@ def api_modulo2():
     res["simulacion_id_guardada"] = sim_id
     return jsonify(res)
 
-# -------------------------------------------------------------
-# MÓDULO 3: Oscilaciones por Viento (EDO e Integración)
-# -------------------------------------------------------------
+# MÓDULO 3: Oscilaciones por Viento
 @app.route('/api/modulo3/<escenario>', methods=['GET'])
 def api_modulo3(escenario):
     esc_upper = escenario.upper()
@@ -80,6 +75,15 @@ def api_modulo3(escenario):
     res["simulacion_id_guardada"] = sim_id
     return jsonify(res)
 
+# MÓDULO 4: Reconstrucción de Sensores
+@app.route('/api/modulo4/<escenario>', methods=['GET'])
+def api_modulo4(escenario):
+    res = simular_modulo4_sensores(escenario=escenario)
+    sim_id = guardar_simulacion(4, "Integrante 3 + 4", res["metodos"])
+    res["simulacion_id_guardada"] = sim_id
+    return jsonify(res)
+
+# HISTORIAL GENERAL
 @app.route('/api/historial', methods=['GET'])
 def api_historial():
     return jsonify({"status": "ok", "historial": obtener_historial_simulaciones()})

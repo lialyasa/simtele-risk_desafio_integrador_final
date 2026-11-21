@@ -4,18 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIMTELE-RISK | Plataforma de Simulación</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-light">
 
-    <!-- Navegación -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">🚡 SIMTELE-RISK</a>
-            <span class="navbar-text text-white-50">Sistema Integrado de Simulación y Métodos Numéricos</span>
+            <span class="navbar-text text-white-50">Sistema Integrado de Simulación Numérica</span>
         </div>
     </nav>
 
@@ -23,134 +20,114 @@
         <div class="row text-center mb-4">
             <div class="col">
                 <h2 class="fw-bold">Panel de Control de Casos de Estudio</h2>
-                <p class="text-muted">Semana 2 — Persistencia y Visualización Interactiva</p>
+                <p class="text-muted">Semana 2 — Persistencia y Visualización Interactiva (4 Módulos)</p>
             </div>
         </div>
 
-        <!-- Grilla de los 4 Módulos Obligatorios -->
         <div class="row g-4">
-
-            <!-- Módulo 1: Detención de Emergencia -->
+            <!-- Módulo 1 -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-primary text-white fw-bold">
-                        1. Detención de Emergencia (Raíces)
-                    </div>
+                    <div class="card-header bg-primary text-white fw-bold">1. Detención de Emergencia (Raíces)</div>
                     <div class="card-body">
-                        <p class="small text-muted">Búsqueda de raíces: bisección, Newton-Raphson y secante para v(t) = 0.</p>
+                        <p class="small text-muted">Búsqueda de raíces v(t) = 0.</p>
                         <canvas id="graficoModulo1" height="200"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- Módulo 2: Deterioro Mecánico -->
+            <!-- Módulo 2 -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-success text-white fw-bold">
-                        2. Deterioro Mecánico y Mantenimiento
-                    </div>
+                    <div class="card-header bg-success text-white fw-bold">2. Deterioro Mecánico</div>
                     <div class="card-body">
-                        <p class="small text-muted">Calibración de coeficientes y umbral de inspección D(t) - D_umbral = 0.</p>
+                        <p class="small text-muted">Umbral de inspección D(t) - D_umbral = 0.</p>
                         <canvas id="graficoModulo2" height="200"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- Módulo 3: Oscilaciones por Viento -->
+            <!-- Módulo 3 -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-warning text-dark fw-bold">
-                        3. Oscilaciones por Viento (EDO e Integración)
-                    </div>
+                    <div class="card-header bg-warning text-dark fw-bold">3. Oscilaciones por Viento</div>
                     <div class="card-body">
-                        <p class="small text-muted">Solución de EDOs (RK2, RK4) e integración numérica (Trapecio, Simpson, Romberg).</p>
+                        <p class="small text-muted">Solución de EDOs (RK4) e Integración.</p>
                         <canvas id="graficoModulo3" height="200"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- Módulo 4: Reconstrucción de Sensores -->
+            <!-- Módulo 4 -->
             <div class="col-md-6">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-danger text-white fw-bold">
-                        4. Reconstrucción de Sensores (Interpolación)
-                    </div>
+                    <div class="card-header bg-danger text-white fw-bold">4. Reconstrucción de Sensores</div>
                     <div class="card-body">
-                        <p class="small text-muted">Interpolación de telemetría (Lagrange, Newton y Splines Cúbicos).</p>
+                        <p class="small text-muted">Interpolación de telemetría (Lagrange).</p>
                         <canvas id="graficoModulo4" height="200"></canvas>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- Scripts de Conexión a la API -->
     <script>
         const API_URL = 'http://localhost:5000/api';
 
-        // Módulo 1: Detención
+        // Módulo 1
         fetch(`${API_URL}/modulo1/NORMAL`)
             .then(r => r.json())
             .then(data => {
-                const ctx = document.getElementById('graficoModulo1').getContext('2d');
-                new Chart(ctx, {
+                new Chart(document.getElementById('graficoModulo1').getContext('2d'), {
                     type: 'line',
                     data: {
                         labels: data.graficos.curva_velocidad.t,
-                        datasets: [{
-                            label: 'Velocidad v(t) [m/s]',
-                            data: data.graficos.curva_velocidad.v,
-                            borderColor: '#0d6efd',
-                            fill: false,
-                            tension: 0.1
-                        }]
-                    },
-                    options: { responsive: true }
+                        datasets: [{ label: 'Velocidad v(t)', data: data.graficos.curva_velocidad.v, borderColor: '#0d6efd', fill: false }]
+                    }
                 });
-            }).catch(err => console.log("Servidor Flask no conectado aún"));
+            });
 
-        // Módulo 2: Deterioro
+        // Módulo 2
         fetch(`${API_URL}/modulo2/umbral`)
             .then(r => r.json())
             .then(data => {
-                const ctx = document.getElementById('graficoModulo2').getContext('2d');
-                new Chart(ctx, {
+                new Chart(document.getElementById('graficoModulo2').getContext('2d'), {
                     type: 'line',
                     data: {
                         labels: data.graficos.curva_deterioro.t,
-                        datasets: [{
-                            label: 'Deterioro D(t)',
-                            data: data.graficos.curva_deterioro.D,
-                            borderColor: '#198754',
-                            fill: false,
-                            tension: 0.1
-                        }]
-                    },
-                    options: { responsive: true }
+                        datasets: [{ label: 'Deterioro D(t)', data: data.graficos.curva_deterioro.D, borderColor: '#198754', fill: false }]
+                    }
                 });
-            }).catch(err => console.log("Servidor Flask no conectado aún"));
+            });
 
-        // Módulo 3: Oscilaciones
+        // Módulo 3
         fetch(`${API_URL}/modulo3/NORMAL`)
             .then(r => r.json())
             .then(data => {
-                const ctx = document.getElementById('graficoModulo3').getContext('2d');
-                new Chart(ctx, {
+                new Chart(document.getElementById('graficoModulo3').getContext('2d'), {
                     type: 'line',
                     data: {
                         labels: data.rk4.ts,
-                        datasets: [{
-                            label: 'Trayectoria RK4 x(t)',
-                            data: data.rk4.xs,
-                            borderColor: '#ffc107',
-                            fill: false,
-                            tension: 0.1
-                        }]
-                    },
-                    options: { responsive: true }
+                        datasets: [{ label: 'Trayectoria RK4 x(t)', data: data.rk4.xs, borderColor: '#ffc107', fill: false }]
+                    }
                 });
-            }).catch(err => console.log("Servidor Flask no conectado aún"));
+            });
+
+        // Módulo 4
+        fetch(`${API_URL}/modulo4/NORMAL`)
+            .then(r => r.json())
+            .then(data => {
+                new Chart(document.getElementById('graficoModulo4').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: data.graficos.curva_sensores.t,
+                        datasets: [
+                            { label: 'Señal Original', data: data.graficos.curva_sensores.y_original, borderColor: '#6c757d', borderDash: [17], fill: false },
+                            { label: 'Reconstrucción (Lagrange)', data: data.graficos.curva_sensores.y_reconstruida, borderColor: '#dc3545', fill: false }
+                        ]
+                    }
+                });
+            });
     </script>
 </body>
 </html>
